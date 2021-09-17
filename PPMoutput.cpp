@@ -23,6 +23,6 @@ int main()
 			std::cout << ir << ' ' << ig << ' ' << ib << '\n';
 		}
 	}
-
+	std::cerr << "\nDone.\n";
 	return 0;
 }

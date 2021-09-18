@@ -101,9 +101,9 @@ inline double dot(const vec3& u, const vec3& v)
 {
 	return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
 }
-inline double cross(const vec3& u, const vec3& v)
+inline vec3 cross(const vec3& u, const vec3& v)
 {
-	return u.e[1] * v.e[2] - u.e[2] * v.e[1], u.e[2] * v.e[0] - u.e[0] * v.e[2], u.e[0] * v.e[1] - u.e[1] * v.e[0];
+	return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1], u.e[2] * v.e[0] - u.e[0] * v.e[2], u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 inline vec3 unit_vector(vec3 v)
 {
@@ -136,6 +136,15 @@ vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat)
 	vec3 r_out_pepr = etai_over_etat * (uv + cos_theta * n);
 	vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_pepr.length_squared())) * n;
 	return r_out_pepr + r_out_parallel;
+}
+vec3 random_unit_in_disk()
+{
+	while(true)
+	{
+		auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+		if (p.length_squared() >= 1)continue;
+		return p;
+	}
 }
 
 #endif

@@ -146,6 +146,7 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="Hittable.h" />
     <ClInclude Include="hittable_list.h" />
+    <ClInclude Include="matetrial.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtweekend.h" />
     <ClInclude Include="sphere.h" />

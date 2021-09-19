@@ -1,8 +1,9 @@
 ﻿#include <iostream>
-
-
+#include <fstream>
 #include <ctime>
-#include<omp.h>
+//#include <cl.h>
+//#define MAX_SRC_SIZE (0x100000) 
+
 #include "rtweekend.h"
 #include "color.h"
 #include "hittable_list.h"
@@ -10,7 +11,11 @@
 #include "camera.h"
 #include "matetrial.h"
 
-color ray_color(const ray& r,const Hittable& world,int depth)
+
+
+using namespace std;
+
+color ray_color(const ray& r,const Hittable& world,int depth) 
 {
 	hit_record rec;
 	if (depth <= 0) return color(0, 0, 0);
@@ -73,18 +78,17 @@ hittable_list random_scene()
 	return world;
 }
 
+
 int main()
 {
-	int p = 0;
-	p = omp_get_num_procs();
-	omp_set_num_threads(p);
-	unsigned start_time=clock();
+	unsigned start_time = clock();
 
-	const auto aspect_ratio = 3.0 / 2.0; // Меняет соотношение сторон
-	const int image_width = 1200;  // Меняет разрешени
-	const int image_heigth = static_cast<int>(image_width/aspect_ratio);
-	const int samples_per_pixel = 500;
-	const int max_depth = 50;
+
+	const auto aspect_ratio = 16.0/9.0; // Меняет соотношение сторон
+	const int image_width = 2560;  // Меняет разрешени
+	const int image_heigth = (int)(image_width/aspect_ratio);
+	const int samples_per_pixel = 100;
+	const int max_depth = 25;
 
 	auto world = random_scene();
 
@@ -96,15 +100,16 @@ int main()
 	auto aperture = 0.1;
 
 	camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
-	std::cout << "P3\n" << image_width << ' ' << image_heigth << "\n255\n";
 
-	for (int j = image_heigth - 1; j >= 0; --j)
+	std::ofstream outf("0_2560.ppm");
+
+	outf << "P3\n" << image_width << ' ' << image_heigth << "\n255\n";
+	for (int j=image_heigth-1;j>=0;--j)
 	{
-		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < image_width; ++i)
 		{
+			cout<< "line: " << j <<" pixel: " << i<<'\n';
 			color pixel_color(0, 0, 0);
-#pragma omp parallel for
 			for (int s = 0; s < samples_per_pixel; ++s)
 			{
 				auto u = (i + random_double()) / (image_width - 1);
@@ -112,12 +117,15 @@ int main()
 				ray r = cam.get_ray(u, v);
 				pixel_color += ray_color(r, world, max_depth);
 			}
-			write_color(std::cout, pixel_color, samples_per_pixel);
+			write_color(outf, pixel_color, samples_per_pixel);
 		}
-
 	}
+
+
+
 	unsigned int end_time = clock();
-	unsigned int search_time = end_time - start_time;
+	unsigned int search_time = (end_time - start_time)/ CLOCKS_PER_SEC;
+
 
 	std::cerr << "\nDone. "<<search_time<<"\n";
 	return 0;
